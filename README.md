@@ -1,6 +1,6 @@
-# MECC Token System
+# MECC Umbane Token System
 
-This project implements a token system for the MECC Energy initiative, utilizing the Polygon Matic blockchain.
+This project implements a token system for the MECC Umbane Energy initiative, utilizing the Polygon Matic blockchain. Umbane means electricity in isiXhosa.
 
 ## Current Status
 
@@ -9,6 +9,7 @@ This project implements a token system for the MECC Energy initiative, utilizing
 *   **Frontend:** A basic React frontend (`frontend/App.js`) is in place.  Further development is required to create a user interface for interacting with the backend API.
 *   **Database:** A PostgreSQL database needs to be set up.
 *   **Chainlink Integration:**  Chainlink integration for oracle functionality is pending.
+* **Carbon Credit Trading Gateway** A gateway to the Johnnesburg Stock Exchange (JSE) Carbon Credit Trading desk API is proposed.
 
 ## Next Steps
 
@@ -17,4 +18,5 @@ This project implements a token system for the MECC Energy initiative, utilizing
 3.  Integrate Chainlink (research and implement a suitable method for interacting with Chainlink oracles).
 4.  Set up the PostgreSQL database.
 5.  Deploy the smart contract to the Polygon network.
-6.  Test thoroughly.
+6. Integrate the JSE carbon trading API
+7.  Test thoroughly.
