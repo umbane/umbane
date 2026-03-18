@@ -19,7 +19,7 @@ w3 = Web3(
     )
 )
 contract_address = os.environ.get(
-    "CONTRACT_ADDRESS", "0x0000000000000000000000000000000000000000"
+    "CONTRACT_ADDRESS", "0xa4817f92897dc9bd0302b465445c242b3da0af3c"
 )
 
 contract_abi = [
@@ -120,7 +120,7 @@ contract_abi = [
 
 contract = w3.eth.contract(address=contract_address, abi=contract_abi)
 account_address = os.environ.get(
-    "ACCOUNT_ADDRESS", "0x0000000000000000000000000000000000000000"
+    "ACCOUNT_ADDRESS", "0x5Ee264d83332Ba0Cf46f8b1EB7B064e34d62d7Dc"
 )
 account_private_key = os.environ.get("ACCOUNT_PRIVATE_KEY", "")
 
