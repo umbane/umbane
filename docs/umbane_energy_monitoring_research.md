@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides comprehensive research on **non-invasive energy monitoring devices** suitable for measuring domestic solar feed-in production for the Umbane carbon credit tokenization system. The City of Cape Town measures feed-in production for tariff purposes but does not issue carbon credits - your system aims to fill this gap by tokenizing verified energy production.
+This document provides comprehensive research on **non-invasive energy monitoring devices** suitable for measuring domestic solar feed-in production for the Umbane carbon credit tokenization system. The City of Cape Town measures feed-in production for tariff purposes but does not issue carbon credits - our system aims to fill this gap by tokenizing verified energy production.
 
 **Primary Recommendation**: Hybrid approach using **ESP32 + CT Clamp sensors + LoRaWAN** for low-cost, scalable deployment across Cape Town households.
 
