@@ -5,31 +5,16 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-contract Token is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgradeable, VRFConsumerBaseV2 {
-    
-    // Polygon Amoy VRF Coordinator
-    address public constant VRF_COORDINATOR_AMOY = 0x9C32...84B2; // TODO: Fill in
+contract Token is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     
     uint256 public mJTotalSupply;
     uint256 public aCTotalSupply;
 
     event MJMinted(address indexed to, uint256 amount);
     event ACMinted(address indexed to, uint256 amount);
-    event RequestEnergyData(bytes32 indexed requestId, address indexed user);
     event CarbonPriceUpdated(int256 price);
 
-    uint64 public s_subscriptionId;
-    bytes32 public keyHash;
-    uint32 public callbackGasLimit;
-    uint16 public requestConfirmations;
-    uint32 public numWords;
-    LinkTokenInterface internal linkToken;
-
-    AggregatorV3Interface internal carbonPriceFeed;
     int256 public latestCarbonPrice;
     uint256 public latestCarbonPriceTimestamp;
 
@@ -44,58 +29,27 @@ contract Token is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgra
     mapping(address => uint256) public pendingCarbonCredits;
 
     /// @custom:oz-upgrades-constructor
-    constructor() VRFConsumerBaseV2(0x2Ca8E0C643bDe4C2D8c8B8B77586A8EDd60178B9) {
+    constructor() {
         _disableInitializers();
     }
 
     function initialize() public initializer {
         __ERC20_init("UmbaneToken", "UMB");
         __Ownable_init(msg.sender);
-        __UUPSUpgradeable_init();
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
-    function setChainlinkConfig(
-        uint64 subscriptionId,
-        bytes32 _keyHash,
-        uint32 _callbackGasLimit,
-        uint16 _requestConfirmations,
-        uint32 _numWords,
-        address _linkToken
-    ) external onlyOwner {
-        s_subscriptionId = subscriptionId;
-        keyHash = _keyHash;
-        callbackGasLimit = _callbackGasLimit;
-        requestConfirmations = _requestConfirmations;
-        numWords = _numWords;
-        linkToken = LinkTokenInterface(_linkToken);
-    }
-
-    function setCarbonPriceFeed(address _feedAddress) external onlyOwner {
-        carbonPriceFeed = AggregatorV3Interface(_feedAddress);
-    }
-
-    function updateCarbonPrice() external onlyOwner {
-        require(address(carbonPriceFeed) != address(0), "Carbon feed not set");
-        (
-            /*uint80 roundID*/,
-            int256 answer,
-            /*uint256 startedAt*/,
-            uint256 updatedAt,
-            /*uint80 answeredInRound*/
-        ) = carbonPriceFeed.latestRoundData();
-        require(answer > 0, "Invalid price");
-        latestCarbonPrice = answer;
-        latestCarbonPriceTimestamp = updatedAt;
-        emit CarbonPriceUpdated(answer);
+    function setCarbonPrice(int256 _price) external onlyOwner {
+        require(_price > 0, "Invalid price");
+        latestCarbonPrice = _price;
+        latestCarbonPriceTimestamp = block.timestamp;
+        emit CarbonPriceUpdated(_price);
     }
 
     function getCarbonPrice() external view returns (int256, uint256) {
         return (latestCarbonPrice, latestCarbonPriceTimestamp);
     }
 
-    function calculateCarbonCredits(uint256 energyKWh) external pure returns (uint256) {
+    function calculateCarbonCredits(uint256 energyKWh) internal pure returns (uint256) {
         uint256 co2Kg = energyKWh * 500 / 1000;
         return co2Kg * CARBON_CREDIT_KG_FACTOR;
     }
@@ -105,15 +59,7 @@ contract Token is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgra
         return int256(acAmount) * latestCarbonPrice / int256(CARBON_CREDIT_KG_FACTOR);
     }
 
-    function requestEnergyData(address user) public returns (bytes32 requestId) {
-        requestId = requestRandomness(keyHash, requestConfirmations, callbackGasLimit, numWords);
-        emit RequestEnergyData(requestId, user);
-    }
-
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
-        uint256 energyUsed = randomWords[0] % 1000;
-        address user = msg.sender;
-        
+    function recordEnergyUsage(address user, uint256 energyUsed) external onlyOwner {
         userEnergyHistory[user].push(UserEnergyRecord({
             periodStart: block.timestamp,
             energyUsed: energyUsed,
