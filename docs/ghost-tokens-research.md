@@ -256,6 +256,7 @@ The ghost tokens occupy intellectual space, but they also demonstrate:
 - CoinMarketCap: CARB, CRB, MCO2, ECO, CCT, CO2, CUT
 - Moss Earth: mco2token.moss.earth
 - Carbify: carbify.io
+- **Carbonmark API**: https://docs.carbonmark.com/
 - Chainlink Documentation
 - Polygon Amoy Network
 - JSE Ventures Carbon Market

@@ -12,5 +12,5 @@ sepolia = "${SEPOLIA_RPC_URL}"
 polygon_amoy = { key = "${POLYGONSCAN_API_KEY}" }
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
 
-[forge]
+[profile.forge]
 allow_paths = ["lib"]
