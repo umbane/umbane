@@ -475,7 +475,7 @@ def calculate_carbon_credits():
         return jsonify(
             {
                 "energy_kwh": energy_kwh,
-                "carbon_credits": credits,
+                "credits": credits,
                 "calculation": f"{energy_kwh} kWh * 500g CO2/kWh = {energy_kwh * 500}kg CO2",
             }
         )

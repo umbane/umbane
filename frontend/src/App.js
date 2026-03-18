@@ -75,8 +75,9 @@ function App() {
   };
 
   const addTokenToWallet = async () => {
+    console.log('Adding token to wallet...');
     try {
-      await window.ethereum.request({
+      const result = await window.ethereum.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20',
@@ -87,8 +88,32 @@ function App() {
           },
         },
       });
+      console.log('Token add result:', result);
+      if (result) {
+        setStatus({ type: 'success', message: 'UMB token added to wallet!' });
+      }
     } catch (e) {
-      setStatus({ type: 'error', message: 'Failed to add token to wallet' });
+      console.error('Token add error:', e);
+      setStatus({ type: 'error', message: 'Failed to add token: ' + e.message });
+    }
+  };
+
+  const addNetworkToWallet = async () => {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x13882',
+          chainName: 'Polygon Amoy Testnet',
+          nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+          rpcUrls: ['https://rpc.ankr.com/polygon_amoy/d06f5dee9abc00217a93067745b34f68bae7d0349a74556a00450163c96615a4'],
+          blockExplorerUrls: ['https://amoy.polygonscan.com']
+        }]
+      });
+      setStatus({ type: 'success', message: 'Polygon Amoy added to wallet!' });
+    } catch (e) {
+      console.error('Network add error:', e);
+      setStatus({ type: 'error', message: 'Failed to add network: ' + e.message });
     }
   };
 
@@ -230,8 +255,11 @@ function App() {
             <div className="wallet-info">
               <span className="wallet-label">Wallet:</span>
               <span className="wallet-address">{address.slice(0, 6)}...{address.slice(-4)}</span>
+              <button className="token-add-btn" onClick={addNetworkToWallet}>
+                + Add Network
+              </button>
               <button className="token-add-btn" onClick={addTokenToWallet}>
-                + Add UMB to Wallet
+                + Add UMB
               </button>
             </div>
 
