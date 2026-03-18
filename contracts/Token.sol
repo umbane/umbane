@@ -28,13 +28,10 @@ contract Token is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     mapping(address => UserEnergyRecord[]) public userEnergyHistory;
     mapping(address => uint256) public pendingCarbonCredits;
 
-    /// @custom:oz-upgrades-constructor
-    constructor() {
-        _disableInitializers();
-    }
+    constructor() {}
 
     function initialize() public initializer {
-        __ERC20_init("UmbaneToken", "UMB");
+        __ERC20_init("Umbane", "UMBANE");
         __Ownable_init(msg.sender);
     }
 
