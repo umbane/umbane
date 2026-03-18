@@ -54,6 +54,10 @@ export const tokenService = {
     const response = await api.get(`/balance/${tokenType}/${address}`);
     return response.data;
   },
+  getTotalSupply: async () => {
+    const response = await api.get('/total-supply');
+    return response.data;
+  },
   getTransactions: async (address, limit = 50, offset = 0) => {
     const response = await api.get(`/transactions/${address}`, {
       params: { limit, offset }

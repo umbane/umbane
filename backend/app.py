@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import psycopg2
 import os
 from web3 import Web3
@@ -7,15 +8,19 @@ import jwt
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+CORS(app)
 
 DATABASE_URL = (
-    os.environ.get("DATABASE_URL") or "postgresql://user:password@localhost:5432/umbane"
+    os.environ.get("DATABASE_URL")
+    or "postgresql://umbane:password@localhost:5432/carbon"
 )
 SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
 
 w3 = Web3(
     Web3.HTTPProvider(
-        os.environ.get("POLYGON_PROVIDER_URL", "https://rpc-amoy.polygon.tech")
+        os.environ.get("POLYGON_PROVIDER_URL")
+        or os.environ.get("POLYGON_AMOY_RPC_URL")
+        or "https://rpc.ankr.com/polygon_amoy/d06f5dee9abc00217a93067745b34f68bae7d0349a74556a00450163c96615a4"
     )
 )
 contract_address = os.environ.get(
@@ -28,41 +33,28 @@ contract_abi = [
             {"name": "to", "type": "address"},
             {"name": "amount", "type": "uint256"},
         ],
-        "name": "mintMJ",
+        "name": "mint",
         "outputs": [],
         "type": "function",
     },
     {
         "inputs": [
-            {"name": "to", "type": "address"},
             {"name": "amount", "type": "uint256"},
         ],
-        "name": "mintAC",
-        "outputs": [],
-        "type": "function",
-    },
-    {
-        "inputs": [{"name": "amount", "type": "uint256"}],
-        "name": "burnMJ",
-        "outputs": [],
-        "type": "function",
-    },
-    {
-        "inputs": [{"name": "amount", "type": "uint256"}],
-        "name": "burnAC",
+        "name": "burn",
         "outputs": [],
         "type": "function",
     },
     {
         "inputs": [{"name": "account", "type": "address"}],
-        "name": "getMJBalance",
+        "name": "balanceOf",
         "outputs": [{"name": "", "type": "uint256"}],
         "stateMutability": "view",
         "type": "function",
     },
     {
-        "inputs": [{"name": "account", "type": "address"}],
-        "name": "getACBalance",
+        "inputs": [],
+        "name": "totalSupply",
         "outputs": [{"name": "", "type": "uint256"}],
         "stateMutability": "view",
         "type": "function",
@@ -100,19 +92,6 @@ contract_abi = [
         "inputs": [{"name": "acAmount", "type": "uint256"}],
         "name": "getCarbonValueUSD",
         "outputs": [{"name": "", "type": "int256"}],
-        "stateMutability": "view",
-        "type": "function",
-    },
-    {
-        "inputs": [{"name": "user", "type": "address"}],
-        "name": "processEnergyRecord",
-        "outputs": [],
-        "type": "function",
-    },
-    {
-        "inputs": [{"name": "user", "type": "address"}],
-        "name": "getUserPendingCredits",
-        "outputs": [{"name": "", "type": "uint256"}],
         "stateMutability": "view",
         "type": "function",
     },
@@ -237,7 +216,7 @@ def mint_mj():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.mintMJ(address, amount).transact(
+        tx_hash = contract.functions.mint(address, amount).transact(
             {"from": account_address}
         )
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -273,11 +252,11 @@ def mint_ac():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.mintAC(address, amount).transact(
+        tx_hash = contract.functions.mint(address, amount).transact(
             {"from": account_address}
         )
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        log_transaction(address, "aC", amount, "mint", tx_hash.hex())
+        log_transaction(address, "mJ", amount, "mint", tx_hash.hex())
 
         return jsonify(
             {
@@ -305,7 +284,7 @@ def burn_mj():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.burnMJ(amount).transact({"from": account_address})
+        tx_hash = contract.functions.burn(amount).transact({"from": account_address})
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         log_transaction(account_address, "mJ", amount, "burn", tx_hash.hex())
 
@@ -335,7 +314,7 @@ def burn_ac():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.burnAC(amount).transact({"from": account_address})
+        tx_hash = contract.functions.burn(amount).transact({"from": account_address})
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         log_transaction(account_address, "aC", amount, "burn", tx_hash.hex())
 
@@ -350,6 +329,17 @@ def burn_ac():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/total-supply", methods=["GET"])
+@token_required
+def get_total_supply():
+    try:
+        supply = contract.functions.totalSupply().call()
+        return jsonify({"totalSupply": supply})
+    except Exception as e:
+        print(f"Total supply error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/balance/<token_type>/<address>", methods=["GET"])
 @token_required
 def get_balance(token_type, address):
@@ -360,15 +350,12 @@ def get_balance(token_type, address):
         return jsonify({"error": "Invalid token type"}), 400
 
     try:
-        if token_type == "mJ":
-            balance = contract.functions.getMJBalance(address).call()
-        else:
-            balance = contract.functions.getACBalance(address).call()
-
+        balance = contract.functions.balanceOf(address).call()
         return jsonify(
             {"address": address, "token_type": token_type, "balance": balance}
         )
     except Exception as e:
+        print(f"Balance error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
