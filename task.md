@@ -19,8 +19,12 @@
 - [ ] Configure and deploy to Polygon testnet → `bd: umbane-0o6`
 
 ## Future: JSE Integration
-- [ ] Research JSE Carbon Credit Trading API → IN PROGRESS
-- [ ] Implement gateway for carbon credit trading
+- [ ] Research JSE Carbon Credit Trading API → IN PROGRESS (umbane-g10)
+- [ ] Implement gateway for carbon credit trading (umbane-g10)
+
+### Access Required
+- **JSE Ventures user ID** needed for https://jseventurescarbon.net/
+- Platform run by Xpansiv
 
 ## JSE Carbon Trading Research
 
