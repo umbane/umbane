@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import psycopg2
 import os
 from web3 import Web3
-import json
 from functools import wraps
 import jwt
 from datetime import datetime, timedelta
