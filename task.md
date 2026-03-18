@@ -22,7 +22,11 @@
 - [ ] Research JSE Carbon Credit Trading API
 - [ ] Implement gateway for carbon credit trading
 
-## Chainlink Research (umbane-dut)
+## Chainlink Integration ✅ COMPLETE (umbane-dut)
+- [x] Add Data Feeds integration (AggregatorV3Interface)
+- [x] Add carbon price feed configuration
+- [x] Add calculateCarbonCredits() for energy-to-carbon conversion
+- [x] Add backend endpoints for Chainlink operations
 ### Current State
 - Contract has VRFConsumerBaseV2 (line 8) but placeholder implementation
 - `requestEnergyData()` simulates random energy usage (0-999 kWh)
