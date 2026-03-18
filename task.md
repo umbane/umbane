@@ -22,6 +22,40 @@
 - [ ] Research JSE Carbon Credit Trading API
 - [ ] Implement gateway for carbon credit trading
 
+## JSE Carbon Trading Research
+
+### JSE Ventures Carbon Market
+- **Launch:** February 2025
+- **Partner:** Xpansiv (infrastructure provider)
+- **First Trade:** 10,000 credits at $8.25/credit
+- **Carbon Tax Rate:** R190/ton (~$20.25) - credits cover ~80%
+
+### Integration Options
+
+#### 1. Xpansiv API (Direct)
+- **Developer Portal:** https://developer.xpansiv.com/
+- **Xpansiv Connect** - Portfolio management APIs
+- **Marketplace** - FIX API for trading
+- **TIGR Registry** - Carbon credit registry
+- **Capabilities:**
+  - Credit inventory across registries
+  - Transaction history
+  - Initiate bilateral trades
+  - Retirements
+
+#### 2. Features
+- Voluntary carbon credits
+- Compliance carbon offsets (COAS)
+- International renewable energy certificates (I-REC)
+- CORSIA compliance
+- Carbon tax offset eligibility
+
+### Implementation Plan
+1. Apply for Xpansiv/JSE developer access
+2. Integrate Xpansiv Connect API for portfolio view
+3. Match on-chain aC tokens with JSE carbon credits
+4. Implement retirement/burning mechanism for tax compliance
+
 ## Chainlink Integration ✅ COMPLETE (umbane-dut)
 - [x] Add Data Feeds integration (AggregatorV3Interface)
 - [x] Add carbon price feed configuration
