@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-contract Token is ERC20, VRFConsumerBaseV2 {
-    constructor() ERC20("UmbaneToken", "UMB") VRFConsumerBaseV2(0x2Ca8E0C643bDe4C2D8c8B8B77586A8EDd60178B9) {}
-
+contract Token is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgradeable, VRFConsumerBaseV2 {
+    
+    // Polygon Amoy VRF Coordinator
+    address public constant VRF_COORDINATOR_AMOY = 0x9C32...84B2; // TODO: Fill in
+    
     uint256 public mJTotalSupply;
     uint256 public aCTotalSupply;
 
@@ -38,6 +43,19 @@ contract Token is ERC20, VRFConsumerBaseV2 {
     mapping(address => UserEnergyRecord[]) public userEnergyHistory;
     mapping(address => uint256) public pendingCarbonCredits;
 
+    /// @custom:oz-upgrades-constructor
+    constructor() VRFConsumerBaseV2(0x2Ca8E0C643bDe4C2D8c8B8B77586A8EDd60178B9) {
+        _disableInitializers();
+    }
+
+    function initialize() public initializer {
+        __ERC20_init("UmbaneToken", "UMB");
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
     function setChainlinkConfig(
         uint64 subscriptionId,
         bytes32 _keyHash,
@@ -45,7 +63,7 @@ contract Token is ERC20, VRFConsumerBaseV2 {
         uint16 _requestConfirmations,
         uint32 _numWords,
         address _linkToken
-    ) public {
+    ) external onlyOwner {
         s_subscriptionId = subscriptionId;
         keyHash = _keyHash;
         callbackGasLimit = _callbackGasLimit;
@@ -54,11 +72,11 @@ contract Token is ERC20, VRFConsumerBaseV2 {
         linkToken = LinkTokenInterface(_linkToken);
     }
 
-    function setCarbonPriceFeed(address _feedAddress) external {
+    function setCarbonPriceFeed(address _feedAddress) external onlyOwner {
         carbonPriceFeed = AggregatorV3Interface(_feedAddress);
     }
 
-    function updateCarbonPrice() external {
+    function updateCarbonPrice() external onlyOwner {
         require(address(carbonPriceFeed) != address(0), "Carbon feed not set");
         (
             /*uint80 roundID*/,
@@ -108,7 +126,7 @@ contract Token is ERC20, VRFConsumerBaseV2 {
         mintMJ(user, energyUsed);
     }
 
-    function processEnergyRecord(address user) external {
+    function processEnergyRecord(address user) external onlyOwner {
         UserEnergyRecord[] storage records = userEnergyHistory[user];
         uint256 pending = pendingCarbonCredits[user];
         
@@ -124,13 +142,13 @@ contract Token is ERC20, VRFConsumerBaseV2 {
         }
     }
 
-    function mintMJ(address to, uint256 amount) public {
+    function mintMJ(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
         mJTotalSupply += amount;
         emit MJMinted(to, amount);
     }
 
-    function mintAC(address to, uint256 amount) public {
+    function mintAC(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
         aCTotalSupply += amount;
         emit ACMinted(to, amount);

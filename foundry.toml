@@ -1,0 +1,13 @@
+[profile.default]
+src = "contracts"
+out = "out"
+libs = ["lib"]
+solc = "0.8.28"
+
+[rpc_endpoints]
+polygon_amoy = "${POLYGON_AMOY_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+
+[etherscan]
+polygon_amoy = { key = "${POLYGONSCAN_API_KEY}" }
+sepolia = { key = "${ETHERSCAN_API_KEY}" }

@@ -1,7 +1,12 @@
 node_modules/
 .env
+.env.local
 .DS_Store
 __pycache__/
 backend/.venv/
 .beads/
 *.pyc
+lib/
+out/
+cache/
+artifacts/
