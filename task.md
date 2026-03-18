@@ -19,7 +19,7 @@
 - [ ] Configure and deploy to Polygon testnet → `bd: umbane-0o6`
 
 ## Future: JSE Integration
-- [ ] Research JSE Carbon Credit Trading API
+- [ ] Research JSE Carbon Credit Trading API → IN PROGRESS
 - [ ] Implement gateway for carbon credit trading
 
 ## JSE Carbon Trading Research
@@ -34,21 +34,39 @@
 
 #### 1. Xpansiv API (Direct)
 - **Developer Portal:** https://developer.xpansiv.com/
-- **Xpansiv Connect** - Portfolio management APIs
+- **Xpansiv Connect** - Portfolio management REST APIs
 - **Marketplace** - FIX API for trading
 - **TIGR Registry** - Carbon credit registry
+- **NAR Registry** - North American Renewables
 - **Capabilities:**
   - Credit inventory across registries
   - Transaction history
   - Initiate bilateral trades
   - Retirements
 
-#### 2. Features
-- Voluntary carbon credits
-- Compliance carbon offsets (COAS)
-- International renewable energy certificates (I-REC)
-- CORSIA compliance
-- Carbon tax offset eligibility
+#### 2. Xpansiv Python SDK
+- Runs within Xpansiv application pipelines
+- Usage modes:
+  - Python Runner task in pipeline
+  - Jupyter Notebook in pipeline
+  - Container with ensemble of scripts
+- **Use cases:** Automated trading, portfolio rebalancing, reporting
+
+#### 3. OpenAPI Endpoints (Xpansiv Connect v1-beta)
+```
+Accounts          - Account management
+Exchange          - Trading operations
+Forward Deals     - Forward contracts
+Generators        - Energy generators
+Instruments       - Available instruments
+Issuances         - Credit issuances
+Portfolio         - Position management
+Projects          - Carbon projects
+ReferenceData    - Market data
+Reports          - Reporting
+Retirements       - Credit retirements
+Transfers         - Transfer operations
+```
 
 ### Implementation Plan
 1. Apply for Xpansiv/JSE developer access
