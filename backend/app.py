@@ -19,7 +19,7 @@ w3 = Web3(
     )
 )
 contract_address = os.environ.get(
-    "CONTRACT_ADDRESS", "0xa4817f92897dc9bd0302b465445c242b3da0af3c"
+    "CONTRACT_ADDRESS", "0xF5D3E95244E07444eCFfE9BF04418cF1Fe398aDe"
 )
 
 contract_abi = [
