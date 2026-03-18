@@ -60,6 +60,20 @@ export const tokenService = {
     });
     return response.data;
   },
+  setCarbonPrice: async (price) => {
+    const response = await api.post('/chainlink/price-feed/set', { feed_address: price });
+    return response.data;
+  },
+  getCarbonPrice: async () => {
+    const response = await api.get('/chainlink/price-feed/get');
+    return response.data;
+  },
+  calculateCredits: async (energyKwh) => {
+    const response = await api.get('/chainlink/calculate-credits', {
+      params: { energy_kwh: energyKwh }
+    });
+    return response.data;
+  },
 };
 
 export const healthService = {
