@@ -6,3 +6,7 @@ export const TOKEN_TYPES = {
   MJ: 'mJ',
   AC: 'aC'
 };
+
+export const CONTRACT_ADDRESS = '0xF5D3E95244E07444eCFfE9BF04418cF1Fe398aDe';
+
+export const OWNER_ADDRESS = '0x5Ee264d83332Ba0Cf46f8b1EB7B064e34d62d7Dc';

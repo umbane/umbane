@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { authService, tokenService } from './api';
-import { POLYGON_CHAIN_ID } from './constants';
+import { POLYGON_CHAIN_ID, CONTRACT_ADDRESS, OWNER_ADDRESS } from './constants';
 import './App.css';
-
-const CONTRACT_ADDRESS = '0xF5D3E95244E07444eCFfE9BF04418cF1Fe398aDe';
-const OWNER_ADDRESS = '0x5Ee264d83332Ba0Cf46f8b1EB7B064e34d62d7Dc';
 
 function App() {
   const [connected, setConnected] = useState(false);
