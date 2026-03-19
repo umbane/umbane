@@ -16,6 +16,7 @@ function App() {
   const [calcEnergy, setCalcEnergy] = useState('');
   const [calcResult, setCalcResult] = useState(null);
   const [carbonPrice, setCarbonPrice] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -166,6 +167,15 @@ function App() {
     }
   };
 
+  const fetchTransactions = async (addr) => {
+    try {
+      const data = await tokenService.getTransactions(addr);
+      setTransactions(data.transactions || []);
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error);
+    }
+  };
+
   useEffect(() => {
     const token = authService.getToken();
     const savedAddress = authService.getWalletAddress();
@@ -180,6 +190,7 @@ function App() {
       fetchBalance();
       fetchTotalSupply();
       fetchCarbonPrice();
+      fetchTransactions(address);
     }
   }, [connected, address]);
 
@@ -388,6 +399,30 @@ function App() {
                 </div>
               </div>
             )}
+
+            <div className="transactions-section">
+              <h4>Transaction History</h4>
+              {transactions.length === 0 ? (
+                <p className="no-transactions">No transactions yet</p>
+              ) : (
+                <div className="transactions-list">
+                  {transactions.map((tx) => (
+                    <div key={tx.id} className={`transaction-item ${tx.type}`}>
+                      <div className="tx-type">{tx.type === 'mint' ? '+' : '-'} {tx.token_type}</div>
+                      <div className="tx-amount">{parseInt(tx.amount).toLocaleString()}</div>
+                      <div className="tx-hash">
+                        <a href={`https://amoy.polygonscan.com/tx/${tx.tx_hash}`} target="_blank" rel="noopener noreferrer">
+                          {tx.tx_hash?.slice(0, 10)}...
+                        </a>
+                      </div>
+                      <div className="tx-date">
+                        {tx.created_at ? new Date(tx.created_at).toLocaleDateString() : ''}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="info-section">
               <h4>Token System</h4>
