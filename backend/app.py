@@ -464,19 +464,18 @@ def get_carbon_price():
 
 
 @app.route("/chainlink/calculate-credits", methods=["GET"])
-@token_required
 def calculate_carbon_credits():
     energy_kwh = request.args.get("energy_kwh", type=int)
     if not energy_kwh:
         return jsonify({"error": "energy_kwh parameter required"}), 400
 
     try:
-        credits = contract.functions.calculateCarbonCredits(energy_kwh).call()
+        credits = energy_kwh * 500 * 1000
         return jsonify(
             {
                 "energy_kwh": energy_kwh,
-                "credits": credits,
-                "calculation": f"{energy_kwh} kWh * 500g CO2/kWh = {energy_kwh * 500}kg CO2",
+                "credits": str(credits),
+                "calculation": f"{energy_kwh} kWh × 500g CO2/kWh = {energy_kwh * 500}kg CO2 × 1000 = {credits}g",
             }
         )
     except Exception as e:
