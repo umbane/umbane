@@ -20,20 +20,50 @@
 
 ---
 
+## Token Architecture Decision
+
+### Simplified Approach (Current MVP)
+
+| Token | Symbol | Type | Purpose |
+|-------|--------|------|---------|
+| **Umbane** | UMB | Single ERC20 | Utility token for all purposes |
+
+**Current Implementation:**
+- Single `Umbane` (UMBANE) token deployed at `0xF5D3E95244E07444eCFfE9BF04418cF1Fe398aDe`
+- Tracks `mJTotalSupply` and `aCTotalSupply` internally for accounting
+- Both mJ and aC use the same UMB token (same balance)
+
+### Granular Approach (Future Enhancement)
+
+| Token | Symbol | Type | Purpose |
+|-------|--------|------|---------|
+| **Umbane** | UMB | ERC20 | Governance/utility |
+| **mJ** | mJ | ERC20 | Energy token (minted per Wh) |
+| **aC** | aC | ERC20 | Carbon credit token |
+
+**When to migrate:**
+- Phase 2+ when trading desk requires distinct tokens
+- When Carbon Trading Desks need separate markets for energy vs carbon
+- When regulatory clarity requires separation
+
+---
+
 ## ✅ Completed Features
 
 ### Smart Contract (Amoy: `0xF5D3E95244E07444eCFfE9BF04418cF1Fe398aDe`)
 
-| Feature | FR-ID | Status |
-|---------|-------|--------|
-| ERC20 UMBANE token | - | ✅ Done |
-| mJ token minting | FR-TM-01 | ✅ Done |
-| aC token minting | FR-TM-02 | ✅ Done |
-| Burn mJ tokens | FR-TR-03 | ✅ Done |
-| Carbon price tracking | - | ✅ Done |
-| Energy recording | FR-TM-03 | ✅ Done |
-| User history | FR-TM-03 | ✅ Done |
-| Pending credits | FR-TM-04 | ✅ Done |
+| Feature | FR-ID | Status | Notes |
+|---------|-------|--------|-------|
+| ERC20 UMBANE token | - | ✅ Done | Single token for all purposes |
+| mJ minting (accounting) | FR-TM-01 | ✅ Done | Internal tracking only |
+| aC minting (accounting) | FR-TM-02 | ✅ Done | Internal tracking only |
+| Burn tokens | FR-TR-03 | ✅ Done | Single burn function for UMB |
+| Carbon price tracking | - | ✅ Done | Manual/Chainlink future |
+| Energy recording | FR-TM-03 | ✅ Done | User history stored |
+| User history | FR-TM-03 | ✅ Done | Per-user records |
+| Pending credits | FR-TM-04 | ✅ Done | Pending aC calculation |
+
+**Note:** Current contract uses single UMB token for both mJ (energy) and aC (carbon). The PRD specifies separate tokens but we simplified for MVP.
 
 ### Backend API
 
