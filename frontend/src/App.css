@@ -303,13 +303,21 @@ main {
 
 .balances-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .user-balance {
   border-color: rgba(0, 255, 136, 0.3);
+}
+
+.carbon-price {
+  border-color: rgba(255, 165, 0, 0.3);
+}
+
+.carbon-price .balance-amount {
+  color: #ffa500;
 }
 
 .balance-label {

@@ -18,6 +18,7 @@ function App() {
   const [isOwner, setIsOwner] = useState(false);
   const [calcEnergy, setCalcEnergy] = useState('');
   const [calcResult, setCalcResult] = useState(null);
+  const [carbonPrice, setCarbonPrice] = useState(null);
 
   const connectWallet = async () => {
     if (!window.ethereum) {
@@ -159,6 +160,15 @@ function App() {
     setLoading(false);
   };
 
+  const fetchCarbonPrice = async () => {
+    try {
+      const data = await tokenService.getCarbonPrice();
+      setCarbonPrice(data);
+    } catch (error) {
+      console.error('Failed to fetch carbon price:', error);
+    }
+  };
+
   useEffect(() => {
     const token = authService.getToken();
     const savedAddress = authService.getWalletAddress();
@@ -172,6 +182,7 @@ function App() {
     if (connected && address) {
       fetchBalance();
       fetchTotalSupply();
+      fetchCarbonPrice();
     }
   }, [connected, address]);
 
@@ -278,6 +289,16 @@ function App() {
                   {balance ? parseInt(balance).toLocaleString() : '0'}
                 </div>
                 <p className="balance-label">Your UMB tokens</p>
+              </div>
+
+              <div className="balance-card carbon-price">
+                <h3>Carbon Price</h3>
+                <div className="balance-amount">
+                  {carbonPrice && carbonPrice.price > 0 
+                    ? `$${(carbonPrice.price / 100).toFixed(2)}/kg`
+                    : 'Not set'}
+                </div>
+                <p className="balance-label">CO2 price (USD per kg)</p>
               </div>
             </div>
 
