@@ -33,7 +33,16 @@ contract_abi = [
             {"name": "to", "type": "address"},
             {"name": "amount", "type": "uint256"},
         ],
-        "name": "mint",
+        "name": "mintMJ",
+        "outputs": [],
+        "type": "function",
+    },
+    {
+        "inputs": [
+            {"name": "to", "type": "address"},
+            {"name": "amount", "type": "uint256"},
+        ],
+        "name": "mintAC",
         "outputs": [],
         "type": "function",
     },
@@ -41,7 +50,32 @@ contract_abi = [
         "inputs": [
             {"name": "amount", "type": "uint256"},
         ],
-        "name": "burn",
+        "name": "burnMJ",
+        "outputs": [],
+        "type": "function",
+    },
+    {
+        "inputs": [
+            {"name": "amount", "type": "uint256"},
+        ],
+        "name": "burnAC",
+        "outputs": [],
+        "type": "function",
+    },
+    {
+        "inputs": [
+            {"name": "user", "type": "address"},
+            {"name": "energyUsed", "type": "uint256"},
+        ],
+        "name": "recordEnergyUsage",
+        "outputs": [],
+        "type": "function",
+    },
+    {
+        "inputs": [
+            {"name": "user", "type": "address"},
+        ],
+        "name": "processEnergyRecord",
         "outputs": [],
         "type": "function",
     },
@@ -216,7 +250,7 @@ def mint_mj():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.mint(address, amount).transact(
+        tx_hash = contract.functions.mintMJ(address, amount).transact(
             {"from": account_address}
         )
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -252,11 +286,11 @@ def mint_ac():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.mint(address, amount).transact(
+        tx_hash = contract.functions.mintAC(address, amount).transact(
             {"from": account_address}
         )
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        log_transaction(address, "mJ", amount, "mint", tx_hash.hex())
+        log_transaction(address, "aC", amount, "mint", tx_hash.hex())
 
         return jsonify(
             {
@@ -284,7 +318,7 @@ def burn_mj():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.burn(amount).transact({"from": account_address})
+        tx_hash = contract.functions.burnMJ(amount).transact({"from": account_address})
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         log_transaction(account_address, "mJ", amount, "burn", tx_hash.hex())
 
@@ -314,7 +348,7 @@ def burn_ac():
         return jsonify({"error": "Invalid amount"}), 400
 
     try:
-        tx_hash = contract.functions.burn(amount).transact({"from": account_address})
+        tx_hash = contract.functions.burnAC(amount).transact({"from": account_address})
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         log_transaction(account_address, "aC", amount, "burn", tx_hash.hex())
 
@@ -470,12 +504,12 @@ def calculate_carbon_credits():
         return jsonify({"error": "energy_kwh parameter required"}), 400
 
     try:
-        credits = energy_kwh * 500 * 1000
+        credits = energy_kwh * 500
         return jsonify(
             {
                 "energy_kwh": energy_kwh,
                 "credits": str(credits),
-                "calculation": f"{energy_kwh} kWh × 500g CO2/kWh = {energy_kwh * 500}kg CO2 × 1000 = {credits}g",
+                "calculation": f"{energy_kwh} kWh × 500g CO2/kWh = {credits}g CO2 offset",
             }
         )
     except Exception as e:
