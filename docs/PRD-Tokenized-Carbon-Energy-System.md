@@ -2,7 +2,7 @@
 
 ## Product Requirements Document (PRD)
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** March 19, 2026  
 **Status:** Draft  
 
@@ -19,6 +19,7 @@ UMB tokens serve multiple purposes:
 - **Retirement**: Permanently retired to claim carbon offset value
 - **Storage**: Held as "Tokenised Energy" reserves for future use
 - **Pledging**: Donated/pay-forward to households without solar access
+- **Grid Purchase**: Exchanged for electricity credits from the municipal grid
 
 ---
 
@@ -118,6 +119,12 @@ Energy to Carbon Calculation:
 1 kWh = 500g CO2 offset = 500 aC (carbon token)
 
 Emission Factor: 0.5 kg CO2/kWh (South Africa grid average)
+
+Grid Purchase Calculation:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token Price = Grid Tariff (ZAR/kWh)
+Example: R2.50/kWh → 1000 mJ = R2.50
+To purchase 50 kWh: 50,000 mJ tokens burned
 ```
 
 ---
@@ -192,6 +199,18 @@ Emission Factor: 0.5 kg CO2/kWh (South Africa grid average)
 | FR-PF-03 | Community pool must be governed by DAO (token-weighted voting) | Should |
 | FR-PF-04 | Recipients must be able to claim from pool (KYC verification) | Should |
 
+### 4.8 Grid Electricity Purchase (FR-GP)
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-GP-01 | Users must be able to purchase electricity from the municipal grid using mJ tokens | Must |
+| FR-GP-02 | System must convert mJ tokens to grid credit at current tariff rate | Must |
+| FR-GP-03 | System must integrate with City of Cape Town prepaid meter API | Must |
+| FR-GP-04 | Grid purchase must burn mJ tokens upon successful transaction | Must |
+| FR-GP-05 | System must record purchase on-chain with timestamp and kWh value | Must |
+| FR-GP-06 | User must receive confirmation with meter number and kWh purchased | Must |
+| FR-GP-07 | System must support both full token payment and token+cash hybrid payments | Should |
+
 ---
 
 ## 5. User Stories
@@ -205,6 +224,7 @@ Emission Factor: 0.5 kg CO2/kWh (South Africa grid average)
 | US-P-03 | As a prosumer, I want to trade my tokens for stablecoins so I can monetize my energy | Trading desk allows swap with <2% slippage for amounts <$1000 |
 | US-P-04 | As a prosumer, I want to retire my carbon tokens so I can claim my environmental impact | One-click retirement generates certificate with serial number |
 | US-P-05 | As a prosumer, I want to keep my tokens as energy savings for a rainy day | Balance displayed in kWh equivalent with projected grid value |
+| US-P-06 | As a prosumer, I want to purchase electricity from the grid using my tokens so I don't need cash | Enter kWh amount, confirm tokens burned, receive electricity credit on meter |
 
 ### 5.2 Carbon Trading Desk Operator
 
@@ -250,6 +270,9 @@ mapping(address => uint256) public pendingCarbonCredits;
 | `burnMJ(uint256 amount)` | Burns mJ tokens (spending/retirement) | Public |
 | `burnAC(uint256 amount)` | Burns aC tokens (retirement only) | Public |
 | `setCarbonPrice(int256 _price)` | Updates carbon price feed | Owner only |
+| `setElectricityTariff(uint256 _tariff)` | Sets current electricity tariff (ZAR/kWh) | Owner only |
+| `purchaseElectricity(address user, uint256 kwhAmount)` | Burns mJ tokens and records electricity purchase | Oracle only |
+| `getElectricityTariff()` | Returns current tariff rate | Public |
 
 #### 6.1.3 Events
 
@@ -260,6 +283,8 @@ event CarbonPriceUpdated(int256 price);
 event EnergyRecorded(address indexed user, uint256 kWh, uint256 timestamp);
 event TokenRetired(address indexed user, uint256 amount, string certificateId);
 event TokenPledged(address indexed from, address indexed to, uint256 amount);
+event ElectricityPurchased(address indexed user, uint256 kwhAmount, uint256 tokensBurned, string meterNumber);
+event ElectricityTariffUpdated(uint256 newTariff);
 ```
 
 ### 6.2 ESP Oracle (Backend)
@@ -274,6 +299,8 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 | `/api/v1/user/{address}/balance` | GET | Get user's token balances |
 | `/api/v1/user/{address}/history` | GET | Get user's energy history |
 | `/api/v1/carbon/price` | GET | Get current carbon price |
+| `/api/v1/electricity/purchase` | POST | Purchase grid electricity using tokens |
+| `/api/v1/electricity/tariff` | GET | Get current electricity tariff rate |
 
 #### 6.2.2 Oracle Workflow
 
@@ -335,6 +362,7 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 | **QuickSwap** | DEX | Token trading |
 | **Polygon Scan** | Block Explorer | Transaction verification |
 | **The Things Network** | LoRaWAN | Device connectivity |
+| **City of Cape Town** | Prepaid Meter API | Electricity credit purchases |
 
 ---
 
@@ -387,7 +415,8 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 - **Energy Production Widget**: Real-time kWh display with trend chart
 - **Token Balance Widget**: mJ and aC balances with USD equivalent
 - **History View**: Daily/weekly/monthly production tables
-- **Quick Actions**: Trade, Retire, Pledge buttons
+- **Quick Actions**: Trade, Retire, Pledge, Buy Electricity buttons
+- **Grid Purchase Widget**: Quick buy electricity using token balance
 
 #### 9.1.2 Token Management
 
@@ -409,6 +438,15 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 - **Voting Mechanism**: Token-weighted voting
 - **Pool Statistics**: Total pledged, claimed, remaining
 
+### 9.4 Grid Electricity Purchase Interface
+
+- **Tariff Display**: Current electricity rate (ZAR/kWh)
+- **Purchase Form**: Input kWh amount or ZAR value
+- **Token Balance Check**: Shows mJ balance and equivalent kWh
+- **Meter Number Input**: Enter prepaid meter number (for City of Cape Town)
+- **Confirmation Dialog**: Shows token cost, kWh received, transaction fee
+- **Purchase Receipt**: Digital receipt with transaction ID and meter confirmation
+
 ---
 
 ## 10. Testing Requirements
@@ -425,6 +463,8 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 | T-06 | Token retirement | Tokens burned, certificate generated |
 | T-07 | Token pledge | Balance transferred to pool address |
 | T-08 | DAO vote | Vote recorded, weight calculated |
+| T-09 | Grid electricity purchase | mJ tokens burned, kWh credit recorded, meter updated |
+| T-10 | Insufficient token balance for purchase | Transaction rejected with insufficient balance error |
 
 ### 10.2 Test Networks
 
@@ -451,6 +491,7 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 - [ ] Mobile responsive dashboard
 - [ ] User onboarding flow
 - [ ] 100-device pilot deployment
+- [ ] Grid electricity purchase integration
 
 ### Phase 3: Launch (Months 7-12)
 
@@ -475,6 +516,7 @@ event TokenPledged(address indexed from, address indexed to, uint256 amount);
 | **DEX** | Decentralized Exchange - automated token trading protocol |
 | **Retirement** | Permanent removal of carbon tokens from circulation (claiming offset) |
 | **Pledging** | Donating tokens to community pool for redistribution |
+| **Grid Purchase** | Using mJ tokens to purchase electricity credit from municipal grid |
 
 ---
 
