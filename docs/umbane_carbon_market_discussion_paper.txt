@@ -938,12 +938,22 @@ Three approaches under consideration (decision pending):
 
 Conversion Formula:
 
-aC Amount (kg CO2) = mJ tokens ÷ 1,000,000 × Emission Factor
+aC Amount (kg CO2) = (mJ tokens ÷ 1,000,000) × Emission Factor
+
+**The Accumulator:**
+The smart contract acts as a "bucket" or "reservoir" - it accumulates mJ drops until the threshold is reached:
+
+```
+IF ∑mJ ≥ 3,600,000 → Mint 1 Token (1 Wh Equivalent)
+```
 
 Where:
+- 1 Watt-hour = 3,600 Joules = 3,600,000 mJ
 - mJ tokens = raw energy production (1 mJ = 1 Wh)
 - kWh conversion = mJ ÷ 1,000,000 (converts to kilowatt-hours)
 - Emission Factor = kg CO2 offset per kWh (SA grid: ~0.9 kg/kWh as of 2026)
+
+The system doesn't mint a token for every mJ - instead it keeps the blockchain "clean" and gas-efficient by only tokenizing when the bucket is full (3.6M mJ = 1 Wh).
 
 Example (with UMB wrap):
 10,000 kWh solar production
