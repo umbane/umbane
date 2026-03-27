@@ -892,46 +892,65 @@ graph TD
                 
                7.2 Token Economics (Do we mint an NFT?)
 
-Two-Token Model:
+**Updated Token Model (March 2026):**
+
+UMB (Governance Token):
+- Type: ERC-20 (with ERC20Votes for DAO)
+- Purpose: Governance voting + wraps mJ + aC with REC certificate metadata
+- Flow: mJ (energy) → wrap → UMB → attest → aC (carbon + REC)
 
 mJ Token (Energy Production Token):
-- Type: ERC-20 (fungible)
+- Type: ERC-20 or ERC-721 (TBD - see discussion below)
 - Supply: Unlimited (minted based on verified production)
 - Unit: 1 mJ = 1 Wh (watt-hour) of energy produced
 - Purpose: 
   - Proof of energy production
-  - Intermediate step before aC issuance
+  - Wrapped by UMB for governance
   - Can be traded independently (energy futures market)
 - Minting Trigger: IoT device measurement → oracle verification → smart contract mint
 - Example: 1,000 kWh production = 1,000,000 mJ tokens minted
 
-aC Token (Carbon Credit NFT):
-- Type: ERC-721 (NFT, unique)
+aC Token (Carbon Credit):
+- Type: ERC-20 or ERC-721 (TBD - see discussion below)
 - Supply: Tied to verified mJ conversion (based on emission factor)
-- Unit: 1 aC NFT = X kg CO2 offset (variable by project)
+- Unit: 1 aC = X kg CO2 offset (variable by project)
 - Purpose: 
   - Carbon credit for trading
-  - Governance rights (DAO voting)
-  - Retirement for carbon offsetting
-- Metadata: Project ID, vintage, emission factor, device ID, production period
-- Minting Trigger: Accumulated mJ → conversion formula → DAO verification → aC NFT mint
-- Example: 3,600 mJ (1,000 kWh) × 0.9 kg CO2/kWh = 900 kg CO2 → aC NFT #12345 (0.9 tons)
+  - Wrapped by UMB for governance
+  - Retirement for carbon offsetting with REC certificate
+- Metadata: REC certificate data (project ID, vintage, emission factor, device ID, production period)
+- Minting Trigger: UMB wrapped → oracle + DAO verification → aC mint
+- Example: 10,000 kWh → 10,000,000 mJ → wrapped as UMB → 9,000 kg CO2 → 9 aC
+
+**Ongoing Discussion: NFT vs ERC-20 vs No-NFT**
+
+Three approaches under consideration (decision pending):
+
+| Approach | mJ | aC | Pros | Cons |
+|----------|----|----|------|------|
+| **A: NFT** | ERC-20 | ERC-721 | Credit-level traceability, unique metadata, certificate generation | Harder to pool in AMM, higher gas |
+| **B: Dual Process** | ERC-721 | ERC-20 | Convertible, better liquidity | More complex UX |
+| **C: Both ERC-20** | ERC-20 | ERC-20 | Simple, easy AMM, low gas | Less granular tracking |
+
+| **No-NFT Option** | ERC-20 | ERC-20 | Off-chain certificate storage | Simpler but requires trust in certificate system |
+
+**Recommendation:** Start with Option C (current implementation) for MVP, evaluate NFT migration for Phase 2 if DeFi liquidity becomes priority. Consider No-NFT with off-chain REC certificates for compliance.
 
 Conversion Formula:
 
-aC Amount (kg CO2) = mJ tokens × kWh conversion × Emission Factor
+aC Amount (kg CO2) = (mJ tokens / 1,000,000) × Emission Factor
 
 Where:
 - mJ tokens = raw energy production (1 mJ = 1 Wh)
-- kWh conversion = mJ / 1,000,000 (convert to kilowatt-hours)
 - Emission Factor = kg CO2 offset per kWh (SA grid: ~0.9 kg/kWh as of 2026)
 
-Example:
+Example (with UMB wrap):
 10,000 kWh solar production
 = 10,000,000 mJ tokens
+= 10,000,000 mJ wrapped as UMB governance token
 = 10,000 kWh × 0.9 kg CO2/kWh
 = 9,000 kg CO2 offset
-= 9 aC NFTs (assuming 1 NFT = 1 ton CO2)
+= 9 aC tokens (with REC certificate metadata)
 
 
 aC Pricing Mechanisms:
@@ -1888,8 +1907,25 @@ Regulations:
 
 
 Appendix D: Notes
+
 1. Carbon Knowledge Hub (2025). "Offset use in South Africa's carbon tax". Bloomberg Finance L.P. Retrieved from https://www.carbonknowledgehub.com/factsheets/south-africa-carbon-tax-offset-use. Data as of June 3, 2025.
-2. NFT Discussion: There is still ongoing discussion on relative merits of issuing NFT in a duel process or single process. In duel process, an mJ NFT is exchanged for aC EC20 (with process wrapped inside UMB EC20), in a single process, the entire procedure occurs automatically, with UMB deposited as an EC20 only after a carbon trade occurs.
+
+2. Token Model Discussion (ONGOING - March 2026):
+   
+   The original paper discussed NFT vs ERC-20 for aC. This has evolved:
+   
+   a) **UMB Governance Token**: New approach - UMB wraps mJ + aC + REC certificate metadata as governance token. This is the preferred direction for DAO voting.
+   
+   b) **Three Options Under Consideration**:
+      - Option A: mJ ERC-20 + aC ERC-721 NFT (traceability, not implemented)
+      - Option B: mJ ERC-721 NFT ↔ aC ERC-20 (dual process, convertible)
+      - Option C: mJ ERC-20 + aC ERC-20 (current implementation, simple but less granular)
+   
+   c) **Decision Pending**: Team must decide before Phase 2 DeFi integration. 
+      - NFT provides: credit-level traceability, unique metadata, certificate generation
+      - ERC-20 provides: easier AMM liquidity, simpler UX, lower gas costs
+   
+   d) **No-NFT Alternative**: Consider pure ERC-20 approach with off-chain certificate storage for compliance with zaREC/d-REC registries.
 
 
 
