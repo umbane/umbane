@@ -938,10 +938,11 @@ Three approaches under consideration (decision pending):
 
 Conversion Formula:
 
-aC Amount (kg CO2) = (mJ tokens / 1,000,000) × Emission Factor
+aC Amount (kg CO2) = mJ tokens ÷ 1,000,000 × Emission Factor
 
 Where:
 - mJ tokens = raw energy production (1 mJ = 1 Wh)
+- kWh conversion = mJ ÷ 1,000,000 (converts to kilowatt-hours)
 - Emission Factor = kg CO2 offset per kWh (SA grid: ~0.9 kg/kWh as of 2026)
 
 Example (with UMB wrap):
