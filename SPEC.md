@@ -112,9 +112,18 @@ Umbane is a tokenized on-chain carbon and energy system for South African prosum
 
 **Current Implementation (Token.sol):**
 - Uses OpenZeppelin ERC20Upgradeable (upgradeable)
-- Both mJ and aC use same token (via `mintMJ` and `mintAC` functions)
+- Both mJ and aC use same ERC-20 token (separate mint functions)
 - Single token contract, two internal accounting tracks
-- Emission factor: 500g CO2/kWh (older spec says 0.9kg, needs update)
+- Emission factor: 500g CO2/kWh
+
+**Contract Deployment Status:**
+
+| Contract | File | Status |
+|----------|------|--------|
+| Token.sol | `contracts/Token.sol` | ✓ **Deployed** (Amoy: 0xF5D3E...) |
+| Governor.sol | `contracts/Governor.sol` | ✗ Not created |
+| Oracle.sol | `contracts/Oracle.sol` | ✗ Not created |
+| Bridge.sol | `contracts/Bridge.sol` | ✗ Not created |
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -236,6 +245,8 @@ contract Token is ERC20, ERC721, Ownable {
 
 ### 4.2 Governor.sol
 
+**Status:** ✗ Not implemented - only Token.sol deployed
+
 DAO governance for aC token holders.
 
 ```solidity
@@ -259,6 +270,8 @@ contract UmbaneGovernor is Governor, ERC20Votes {
 ```
 
 ### 4.3 Bridge.sol
+
+**Status:** ✗ Not implemented - only Token.sol deployed
 
 Bridge contracts for COAS/JSE integration.
 
