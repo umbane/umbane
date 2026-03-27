@@ -936,24 +936,47 @@ Three approaches under consideration (decision pending):
 
 **Recommendation:** Start with Option C (current implementation) for MVP, evaluate NFT migration for Phase 2 if DeFi liquidity becomes priority. Consider No-NFT with off-chain REC certificates for compliance.
 
+**The Accumulator (Core Mechanism):**
+
+The smart contract acts as a digital "bucket" - it accumulates mJ drops until the threshold is reached before minting a token. This keeps the blockchain gas-efficient.
+
+**The Minting Rule:**
+```
+IF ∑mJ ≥ 3,600,000 ⟹ Mint 1 Token (1 Wh Equivalent)
+```
+
+Where `∑mJ` = "sum of all mJ" (accumulated total from sensor readings)
+
+```
+Note: 1 Watt-hour = 3,600 Joules = 3,600,000 mJ
+```
+
+**Example Flow:**
+```
+Time    mJ Reading    Running Total (∑mJ)    Token Minted?
+──────────────────────────────────────────────────────────────
+08:00   500 mJ        500                   No
+08:01   800 mJ        1,300                No
+08:02   1,200 mJ      2,500                No
+08:03   1,000 mJ      3,500                No
+08:04   500 mJ        4,000                ✓ YES - mint 1 token
+
+(Accumulator then resets to 0 for next token)
+```
+
+**Why use mJ instead of Wh?**
+- Precision: If system only measured in Wh, production <1 Wh (e.g., 0.5 Wh) would be "lost" to rounding
+- By tracking in mJ, every tiny bit of energy counts toward the next token
+- Standard RECs track 1 MWh blocks - Umbane brings that to the "edge" of the grid
+
 Conversion Formula:
 
 aC Amount (kg CO2) = (mJ tokens ÷ 1,000,000) × Emission Factor
 
-**The Accumulator:**
-The smart contract acts as a "bucket" or "reservoir" - it accumulates mJ drops until the threshold is reached:
-
-```
-IF ∑mJ ≥ 3,600,000 → Mint 1 Token (1 Wh Equivalent)
-```
-
 Where:
-- 1 Watt-hour = 3,600 Joules = 3,600,000 mJ
 - mJ tokens = raw energy production (1 mJ = 1 Wh)
 - kWh conversion = mJ ÷ 1,000,000 (converts to kilowatt-hours)
 - Emission Factor = kg CO2 offset per kWh (SA grid: ~0.9 kg/kWh as of 2026)
-
-The system doesn't mint a token for every mJ - instead it keeps the blockchain "clean" and gas-efficient by only tokenizing when the bucket is full (3.6M mJ = 1 Wh).
 
 Example (with UMB wrap):
 10,000 kWh solar production
