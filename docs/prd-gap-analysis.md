@@ -2,21 +2,28 @@
 
 ## Current Implementation Status
 
-### Smart Contract (Token.sol)
+### Smart Contract (Token.sol - Deployed: 0xF5D3E95244E07444eCFFESBF04418cF1Fe398aDe)
 
 **Implemented:**
-- [x] Basic ERC20 token (UMBANE)
-- [x] mJ and aC token minting
-- [x] Burn functions for both
-- [x] Carbon price setting
-- [x] Energy recording (oracle callable)
+- [x] ERC20 UMBANE token (upgradeable)
+- [x] mJ minting via `mintMJ()` - as ERC20
+- [x] aC minting via `mintAC()` - as ERC20 (NOT NFT as spec suggests)
+- [x] Burn functions (burnMJ, burnAC)
+- [x] Carbon price setting (setCarbonPrice)
+- [x] Energy recording (recordEnergyUsage - oracle callable)
 - [x] User energy history
 - [x] Pending carbon credits
+- [x] Upgradeable (UUPS)
 
 **Missing:**
+- [ ] Token retirement with certificate generation (retireAC function)
 - [ ] Grid electricity purchase functions (FR-GP)
 - [ ] Token pledge/CarB functionality
 - [ ] Electricity tariff storage
+- [ ] ERC-721 NFT support (currently both are ERC20 - spec needs update)
+- [ ] DAO governance integration
+
+**Key Discrepancy:** Spec says aC as ERC-721 NFT, but actual contract has both mJ and aC as ERC20 tokens. This aligns with Option C (both ERC20) but not the spec. Spec needs updating.
 
 ### Backend API
 

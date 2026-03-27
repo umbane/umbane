@@ -70,8 +70,8 @@ Umbane is a tokenized on-chain carbon and energy system for South African prosum
 │                          BLOCKCHAIN LAYER (Polygon)                         │
 │                                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │  Token.sol   │  │ Governor.sol │  │  Oracle.sol  │  │ Bridge.sol   │    │
-│  │ mJ + aC NFT  │  │    DAO       │  │ Price Feeds  │  │  COAS/JSE    │    │
+│  │  Token.sol   │  │ Governor.sol │  │  Oracle.sol  │  │  Bridge.sol  │    │
+│  │ mJ + aC ERC20 │  │    DAO       │  │ Price Feeds  │  │  COAS/JSE    │    │
 │  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -102,15 +102,19 @@ Umbane is a tokenized on-chain carbon and energy system for South African prosum
 
 **Location:** `contracts/Token.sol`
 
-**Design Decision (OPEN):** There are three options under consideration for token standards:
+**Design Decision (IMPLEMENTED):** Both tokens are currently ERC-20 (Option C below). This differs from original spec which showed aC as ERC-721 NFT.
 
-| Option | mJ Token | aC Token | Pros | Cons |
-|--------|----------|----------|------|------|
-| **A: Current (aC NFT)** | ERC-20 | ERC-721 NFT | Full traceability, unique metadata per credit | Harder to pool in AMM |
-| **B: Dual Process** | ERC-721 NFT | ERC-20 | Better DeFi liquidity, convertible | More complex UX |
-| **C: Simple (both ERC-20)** | ERC-20 | ERC-20 | Easy AMM pooling, simple | Less granular credit tracking |
+| Option | mJ Token | aC Token | Status |
+|--------|----------|----------|--------|
+| **A: Current (aC NFT)** | ERC-20 | ERC-721 NFT | Not implemented |
+| **B: Dual Process** | ERC-721 NFT | ERC-20 | Not implemented |
+| **C: Simple (both ERC-20)** | ERC-20 | ERC-20 | ✓ **IMPLEMENTED** |
 
-**Recommendation for MVP:** Start with Option A (mJ ERC-20, aC NFT) for carbon credit traceability. Consider Option B for Phase 2 if DeFi liquidity becomes priority.
+**Current Implementation (Token.sol):**
+- Uses OpenZeppelin ERC20Upgradeable (upgradeable)
+- Both mJ and aC use same token (via `mintMJ` and `mintAC` functions)
+- Single token contract, two internal accounting tracks
+- Emission factor: 500g CO2/kWh (older spec says 0.9kg, needs update)
 
 ```solidity
 // SPDX-License-Identifier: MIT

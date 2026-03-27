@@ -112,10 +112,12 @@ UMB tokens serve multiple purposes:
 
 ### 3.1 Token Overview
 
-| Token | Symbol | Description | Standard | Notes |
-|-------|--------|-------------|----------|-------|
-| **Umbane Energy** | **mJ** | Represents energy produced (millijoules) | ERC-20 (fungible) | 1 mJ = 1 Wh |
-| **Umbane Carbon** | **aC** | Represents carbon offset (kg CO2) | ERC-721 (NFT) | Each token has unique metadata |
+| Token | Symbol | Description | Standard | Implementation |
+|-------|--------|-------------|----------|----------------|
+| **Umbane Energy** | **mJ** | Represents energy produced (millijoules) | ERC-20 | ✓ Implemented as ERC-20 |
+| **Umbane Carbon** | **aC** | Represents carbon offset (kg CO2) | ERC-20 | ✓ Implemented as ERC-20 (NOT NFT) |
+
+**Note:** The PRD originally specified aC as ERC-721 NFT, but the actual implementation uses ERC-20 for both tokens (Option C). This was simpler for DeFi integration.
 
 ### 3.2 Token Mechanics
 
