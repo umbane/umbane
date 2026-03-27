@@ -30,10 +30,13 @@ contracts/
 └── Token.sol  ← Only contract (4KB)
 ```
 
-**Contracts Spec'd but NOT Created:**
-- contracts/Governor.sol
-- contracts/Oracle.sol
-- contracts/Bridge.sol
+**Contracts Spec'd:**
+```
+contracts/
+├── Token.sol      ← ✓ Deployed
+├── Governor.sol   ← Skeleton created (Phase 2)
+└── ACVotes.sol    ← Governance extension (Phase 2)
+```
 
 ### Backend API
 
@@ -117,8 +120,30 @@ contracts/
 | FR-TR: Token retirement | Not started |
 | FR-PF: Token pledging/CarB | Not started |
 | FR-GP: Grid electricity purchase | Not started |
-| DAO governance | Not started |
+| FR-GOV: DAO governance | Design defined, contract not started |
 | City of Cape Town meter API | Not started |
+
+---
+
+## DAO Governance Design
+
+**Approach:** Phased hybrid with sig-council (multi-sig) → full DAO
+
+### Phase 1: Multi-Sig Council (Current)
+- 5-7 member Gnosis Safe on Polygon
+- 4/7 signatures for critical actions
+- Powers: carbon pricing, oracle config, emergency pauses, contract upgrades
+
+### Phase 2: Hybrid Governance (Months 6-18)
+- OpenZeppelin Governor with aC voting
+- Voting delay: 2 days, period: 5 days, quorum: 4%
+- Multi-sig retains veto for 12 months
+
+### Phase 3: Full DAO (Month 18+)
+- Remove veto, lower quorum to 2-3%
+- Add delegation + sub-committees
+
+**Reference:** `docs/umbane_dao_governance_analysis.md`
 
 ---
 

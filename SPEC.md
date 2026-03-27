@@ -245,7 +245,23 @@ contract Token is ERC20, ERC721, Ownable {
 
 ### 4.2 Governor.sol
 
-**Status:** ✗ Not implemented - only Token.sol deployed
+**Status:** ✗ Not implemented - design in `docs/umbane_dao_governance_analysis.md`
+
+**Design:** Phased hybrid with sig-council (multi-sig) → full DAO
+
+**Phase 1 (Current):** Multi-Sig Council
+- 5-7 member Gnosis Safe (Polygon)
+- 4/7 signatures for critical actions
+- Powers: carbon pricing, oracle config, emergency pauses, contract upgrades
+
+**Phase 2 (Months 6-18):** Hybrid Governance
+- OpenZeppelin Governor with aC voting tokens
+- Voting delay: 2 days, period: 5 days, quorum: 4%
+- Multi-sig retains veto power
+
+**Phase 3 (Month 18+):** Full DAO
+- Remove training wheels, lower quorum to 2-3%
+- Add delegation + specialized sub-committees
 
 DAO governance for aC token holders.
 
