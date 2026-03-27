@@ -1,4 +1,4 @@
-# Strategic Pathway Analysis: Collective I-REC Registration vs Parallel Market
+# Strategic Pathway Analysis: Collective I-REC Registration vs D-REC, vs Parallel Market
 ## Umbane Carbon Credit System - Integration or Independence?
 
 ---
@@ -7,7 +7,9 @@
 
 Umbane faces a critical strategic decision: should the project act as an **aggregated registrant** within the existing I-REC/COAS system (integration pathway), or operate as a **parallel tokenized market** with optional bridges to traditional registries (independence pathway)?
 
-**Key Finding**: The aggregation model is **technically feasible and significantly more viable** than initially assessed. I-REC explicitly supports third-party agents registering multiple devices on behalf of producers, which aligns perfectly with Umbane's coordinator role.
+"there is nothing obligating you to go the IRIC route, you can continue developing your own token on blockchain, it will just require more time and effort to bring awareness to potential buyers." Chris Sturgess, JSE Carbon Trading Desk
+
+**Key Finding**: The aggregation model is **technically feasible and significantly more viable** than initially assessed. I-REC explicitly supports third-party agents registering multiple devices on behalf of producers, and also opens the door for D-REC (Distributed Renewable Energy Certificates, which aligns perfectly with Umbane's coordinator role.
 
 **Recommendation**: **Hybrid Strategy** - Begin as I-REC aggregated registrant (immediate legitimacy + JSE recognition), build parallel DeFi infrastructure (innovation + liquidity), maintain optionality for full independence if regulatory environment changes.
 
@@ -376,7 +378,7 @@ Household Solar → ESP32 IoT Device → LoRaWAN → Umbane Backend
 
 ### 4.2 Stakeholder Preference Analysis
 
-**JSE (Chris Thurman)**:
+**JSE (Chris Sturgess)**:
 - **Prefers**: Pathway A (I-REC integration)
 - **Reasoning**: I-RECs fit existing JSE infrastructure, no need to explain "blockchain tokens," corporate buyers already understand I-RECs
 - **Concern**: Parallel market fragments liquidity away from JSE
@@ -588,7 +590,7 @@ Equilibrium: aC ≈ I-REC price ± (arbitrage fees)
 - [ ] Prepare device registration CSV template (for batch upload)
 
 **Week 3-4: Stakeholder Validation**
-- [ ] Schedule follow-up with Chris Thurman (JSE): Present hybrid strategy
+- [ ] Schedule follow-up with Chris Sturgess (JSE): Present hybrid strategy
 - [ ] Contact National Treasury Carbon Tax unit: Gauge receptiveness to I-REC-backed tokens
 - [ ] Meet with solar installer partners: Confirm interest in bundling Umbane registration
 
@@ -878,7 +880,7 @@ Year 4-5 (stable state):
 
 **This Week**:
 1. Email GCC (issuer@greencertificate.com): Express interest, request fee schedule
-2. Email Chris Thurman (JSE): Schedule follow-up meeting to present hybrid strategy
+2. Email Chris Sturgess (JSE): Schedule follow-up meeting to present hybrid strategy
 3. Commission legal opinion on aC token classification (FSCA compliance)
 
 **Next 30 Days**:
