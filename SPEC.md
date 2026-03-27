@@ -20,7 +20,7 @@ Umbane is a tokenized on-chain carbon and energy system for South African prosum
 | Layer | Technology | Network |
 |-------|------------|---------|
 | Smart Contracts | Solidity | Polygon Amoy (80002) → Mainnet (137) |
-| Token Standards | ERC-20 (mJ), ERC-721 (aC) | OpenZeppelin |
+| Token Standards | ERC-20 (mJ), ERC-721 (aC) | OpenZeppelin | Note: Token design pending - see Section 4.1 |
 | Oracle | Chainlink | Price feeds + VRF |
 | DEX | Uniswap V3 | QuickSwap/SushiSwap |
 
@@ -101,6 +101,16 @@ Umbane is a tokenized on-chain carbon and energy system for South African prosum
 ### 4.1 Token.sol
 
 **Location:** `contracts/Token.sol`
+
+**Design Decision (OPEN):** There are three options under consideration for token standards:
+
+| Option | mJ Token | aC Token | Pros | Cons |
+|--------|----------|----------|------|------|
+| **A: Current (aC NFT)** | ERC-20 | ERC-721 NFT | Full traceability, unique metadata per credit | Harder to pool in AMM |
+| **B: Dual Process** | ERC-721 NFT | ERC-20 | Better DeFi liquidity, convertible | More complex UX |
+| **C: Simple (both ERC-20)** | ERC-20 | ERC-20 | Easy AMM pooling, simple | Less granular credit tracking |
+
+**Recommendation for MVP:** Start with Option A (mJ ERC-20, aC NFT) for carbon credit traceability. Consider Option B for Phase 2 if DeFi liquidity becomes priority.
 
 ```solidity
 // SPDX-License-Identifier: MIT
