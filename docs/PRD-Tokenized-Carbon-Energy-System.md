@@ -2,9 +2,10 @@
 
 ## Product Requirements Document (PRD)
 
-**Version:** 1.1  
-**Date:** March 19, 2026  
+**Version:** 1.2  
+**Date:** March 27, 2026  
 **Status:** Draft  
+**Based on:** umbane_carbon_market_discussion_paper.txt  
 
 ---
 
@@ -12,7 +13,33 @@
 
 Umbane is a **tokenized on-chain carbon and energy system** that enables prosumers (households with solar installations) to monetize their clean energy production as verifiable carbon credits and tradeable tokens.
 
-The system acquires energy data via **CT clamp sensors** connected to **ESP32 microcontrollers**, which transmit signed measurements to an **ESP "Oracle"** that verifies and submits data to the **Polygon blockchain**. The smart contract issues users with **UMB tokens** representing their energy production and carbon offset value.
+The system acquires energy data via **CT clamp sensors** connected to **ESP32 microcontrollers** with **PZEM-004T voltage/power measurement module**, which transmit signed measurements to an **ESP "Oracle"** that verifies and submits data to the **Polygon blockchain**. The smart contract issues users with **mJ and aC tokens** representing their energy production and carbon offset value.
+
+### 2.1 South African Market Context
+
+South Africa's carbon and energy certificate market operates under multiple overlapping frameworks with significant barriers for small-scale producers:
+
+**Registration Barriers (as of 2026):**
+- **zaREC (Pty) Ltd**: R25,000/device registration fee (ex VAT), minimum transaction fee ~R4,600 (ex VAT)
+- **I-REC (GCC)**: £800-2,500/device registration fee, administered from Sheffield, UK
+- These costs immediately exclude household solar prosumers and township microgrids
+
+**Key Market Players:**
+| Entity | Role | Notes |
+|--------|------|-------|
+| **zaREC (Pty) Ltd** | Local REC registry | 12 active market makers, 179 organizational buyers |
+| **RECSA** | Industry body | Non-profit supporting SA REC market |
+| **GCC** | I-REC Central Issuer | UK-based, sole SA issuer |
+| **COAS** | Carbon Offset Registry | Tax-eligible offsets for carbon tax compliance |
+| **JSE Ventures** | Carbon Trading | White-label Xpansiv CBL, not a market maker |
+| **Xpansiv/Evident** | Infrastructure | Single-vendor dependency, no public API |
+
+**Pricing (JSE Ventures - spot):**
+- Generic VCU (Verra): R120-R180/ton CO2 ($7-$10 USD)
+- I-REC (SA wind/solar): R8-R15/MWh ($0.44-$0.83 USD)
+- Volatility: ±40% within 90 days (no transparent benchmark)
+
+**Umbane's Solution:** Create a parallel tokenized system that aggregates I-REC/zaREC registration for domestic-scale producers, bypassing the R25,000/device barrier while maintaining optional bridges to traditional registries (COAS, JSE) via verifiable oracles.
 
 UMB tokens serve multiple purposes:
 - **Trading**: Exchanged for stablecoins via Carbon Trading Desks
@@ -67,15 +94,17 @@ UMB tokens serve multiple purposes:
 
 ### 2.2 Core Components
 
-| Component | Description | Technology |
-|-----------|-------------|------------|
-| **CT Clamp Sensor** | Non-invasive current sensor on solar feed-in line | SCT-013-030 (30A) or SCT-013-100 (100A) |
-| **ESP32 Device** | Microcontroller that measures, calculates, and signs energy data | ESP32-WROOM-32 or TTGO T-Beam |
-| **ESP Oracle** | Backend service that verifies signed data and submits to chain | Python/FastAPI |
-| **Smart Contract** | Polygon-based token contract that mints UMB tokens | Solidity (ERC20) |
-| **Frontend Dashboard** | User interface for viewing energy production and token balances | React/JavaScript |
-| **Carbon Trading Desk** | DEX integration for swapping UMB for stablecoins | QuickSwap/SushiSwap |
-| **Oracle System** | Off-chain verification layer ensuring data integrity | Chainlink-style |
+| Component | Description | Technology | Cost (ZAR) |
+|-----------|-------------|------------|------------|
+| **CT Clamp Sensor** | Non-invasive current sensor on solar feed-in line | SCT-013-030 (30A) or SCT-013-100 (100A) | R200-R500 |
+| **PZEM-004T Module** | Voltage, current, power, frequency, power factor measurement | AC voltage: 80-260V, Current: 0-100A | R150-R300 |
+| **ESP32 Device** | Microcontroller that measures, calculates, and signs energy data | ESP32-WROOM-32 or TTGO T-Beam | R250-R500 |
+| **LoRa Module** | Long-range wireless communication | Ra-01 SX1278 or built-in | R100-R200 |
+| **ESP Oracle** | Backend service that verifies signed data and submits to chain | Python/FastAPI | - |
+| **Smart Contract** | Polygon-based token contract that mints tokens | Solidity (ERC20/ERC721) | - |
+| **Frontend Dashboard** | User interface for viewing energy production and token balances | React/JavaScript | - |
+| **Carbon Trading Desk** | DEX integration for swapping tokens for stablecoins | QuickSwap/SushiSwap | - |
+| **Oracle System** | Off-chain verification layer ensuring data integrity | Chainlink-style | - |
 
 ---
 
@@ -83,36 +112,73 @@ UMB tokens serve multiple purposes:
 
 ### 3.1 Token Overview
 
-| Token | Symbol | Description | Standard |
-|-------|--------|-------------|----------|
-| **Umbane Energy** | **mJ** | Represents energy produced (millijoules) | ERC20 |
-| **Umbane Carbon** | **aC** | Represents carbon offset (kg CO2) | ERC20 |
+| Token | Symbol | Description | Standard | Notes |
+|-------|--------|-------------|----------|-------|
+| **Umbane Energy** | **mJ** | Represents energy produced (millijoules) | ERC-20 (fungible) | 1 mJ = 1 Wh |
+| **Umbane Carbon** | **aC** | Represents carbon offset (kg CO2) | ERC-721 (NFT) | Each token has unique metadata |
 
 ### 3.2 Token Mechanics
 
 #### 3.2.1 mJ (Millijoules - Energy Token)
 
 - **Minting**: 1 mJ minted per Wh (watt-hour) of verified solar feed-in
+- **Accumulator**: Smart contract treats incoming data as "drops" (millijoules) and only mints a tradeable 1 Wh token once total reaches 3,600,000 mJ (1 kWh)
 - **Purpose**: Represents the energy value of solar production
 - **Use Cases**:
   - Held as "Tokenised Energy" for future consumption
   - Traded on Carbon Trading Desks
   - Used in community energy sharing
+  - Burned for grid electricity purchase
 
-#### 3.2.2 aC (Carbon Credits)
+#### 3.2.2 aC (Carbon Credits - NFT)
 
+- **Type**: ERC-721 NFT with metadata (project_id, vintage, emission_factor, device_id, production_period)
 - **Minting**: Calculated from energy production using emission factor
-  - South Africa grid: 0.5 kg CO2/kWh (Eskom)
-  - 1 kWh solar = 500g CO2 offset = 500 aC
-- **Purpose**: Represents verified carbon offset value
+  - South Africa grid (2026): 0.9 kg CO2/kWh
+  - 1 kWh solar = 900 g CO2 offset = 0.9 aC
+- **Conversion Formula**: `aC (kg CO2) = mJ tokens / 1,000,000 × Emission Factor`
+- **Purpose**: Represents verified carbon offset value as unique NFT
 - **Use Cases**:
   - Retired to claim carbon offset (permanent)
-  - Traded on carbon markets
+  - Traded on carbon markets (peer-to-peer or via liquidity pool)
+  - Used for DAO governance (1 aC = 1 vote)
   - Pledged to community fund
 
 ### 3.3 Conversion Rates
 
 ```
+Energy to Carbon Calculation:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1 kWh (1000 Wh) = 1,000,000 mJ (energy token)
+1 kWh = 0.9 kg CO2 offset = 0.9 aC (carbon NFT)
+
+Emission Factor: 0.9 kg CO2/kWh (South Africa grid - 2026 update)
+
+Example:
+10,000 kWh solar production
+= 10,000,000 mJ tokens
+= 10,000 kWh × 0.9 kg CO2/kWh
+= 9,000 kg CO2 offset
+= 9 aC NFTs (assuming 1 NFT = 1 ton CO2)
+```
+
+**Pricing Mechanisms:**
+
+1. **Primary Market (Newly Minted aC)**:
+   - Algorithmic floor price: Max(JSE carbon spot × 0.8, R100/ton)
+   - Example: If JSE VCU = R150, floor = R120/ton
+   - Minting cost: R50/aC (covers oracle + tx costs)
+   - Prosumer receives: R120 - R50 = R70 net per ton
+
+2. **Secondary Market (aC Trading)**:
+   - DeFi Pool: aC/USDC on Uniswap (market price)
+   - P2P: Direct wallet-to-wallet trades
+   - Marketplace: Umbane marketplace with offers/bids
+   - Price discovery via: AMM curve + arbitrage
+
+3. **Bridge Price (aC → COAS)**:
+   - Bridge fee: 5% of off-chain value
+   - Example: aC = R120, COAS credit = R180 → bridge fee = R9
 Energy to Carbon Calculation:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1 kWh (1000 Wh) = 1000 mJ (energy token)
@@ -130,6 +196,17 @@ To purchase 50 kWh: 50,000 mJ tokens burned
 ---
 
 ## 4. Functional Requirements
+
+### 4.0 DAO Governance (FR-GOV)
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-GOV-01 | aC token holders must have voting rights in DAO | Must |
+| FR-GOV-02 | 1 aC token staked = 1 vote in DAO | Must |
+| FR-GOV-03 | Voting on: carbon price parameters, device verification standards, treasury allocation, protocol upgrades | Must |
+| FR-GOV-04 | Proposal creation: any aC holder with >100 aC can propose | Should |
+| FR-GOV-05 | Proposal threshold: 51% for standard, 67% for protocol upgrades | Must |
+| FR-GOV-06 | Quorum: 4% of total aC staked required for proposal to pass | Must |
 
 ### 4.1 Data Acquisition (FR-DA)
 
@@ -245,46 +322,77 @@ To purchase 50 kWh: 50,000 mJ tokens burned
 
 ## 6. Technical Specifications
 
-### 6.1 Smart Contract (Token.sol)
+### 6.1 Smart Contracts (Polygon)
 
-#### 6.1.1 Contract State Variables
+#### 6.1.1 Contract Overview
+
+| Contract | Purpose | Standard |
+|----------|---------|----------|
+| **Token.sol** | mJ (ERC-20) and aC (ERC-721) token issuance | ERC-20 + ERC-721 |
+| **Governor.sol** | DAO governance for aC holders | OpenZeppelin Governor |
+| **Oracle.sol** | Chainlink integration for price feeds | Chainlink VRF |
+| **Marketplace.sol** | P2P aC trading with order matching | Custom |
+| **Bridge.sol** | Bridge to COAS/JSE off-chain registries | Custom |
+
+#### 6.1.2 Token.sol State Variables
 
 ```solidity
+// ERC-20 mJ Token
 uint256 public mJTotalSupply;      // Total mJ tokens minted
+mapping(address => uint256) public mJBalanceOf;
+
+// ERC-721 aC Token (NFT)
 uint256 public aCTotalSupply;      // Total aC tokens minted
+struct CarbonCredit {
+    uint256 tokenId;
+    address owner;
+    uint256 kgCO2;                 // Offset amount
+    uint256 vintage;               // Year minted
+    string methodology;            // Carbon methodology
+    bytes32 deviceId;             // Source device
+    uint256 timestamp;
+    bool retired;
+}
+mapping(uint256 => CarbonCredit) public carbonCredits;
+
+// Pricing
 int256 public latestCarbonPrice;  // Current carbon price (USD/kg)
+uint256 public electricityTariff;  // Current tariff (ZAR/kWh)
 uint256 public latestCarbonPriceTimestamp;
 
-mapping(address => UserEnergyRecord[]) public userEnergyHistory;
+// User Data
+mapping(address => EnergyRecord[]) public userEnergyHistory;
 mapping(address => uint256) public pendingCarbonCredits;
 ```
 
-#### 6.1.2 Key Functions
+#### 6.1.3 Key Functions
 
 | Function | Description | Access |
 |----------|-------------|--------|
-| `recordEnergyUsage(address user, uint256 energyUsed)` | Called by Oracle to record energy and mint tokens | Oracle only |
+| `recordEnergyUsage(address user, uint256 energyUsed)` | Called by Oracle to record energy and mint mJ tokens | Oracle only |
 | `processEnergyRecord(address user)` | Finalizes pending aC tokens after verification | Oracle only |
 | `mintMJ(address to, uint256 amount)` | Mints energy tokens | Owner only |
-| `mintAC(address to, uint256 amount)` | Mints carbon tokens | Owner only |
-| `burnMJ(uint256 amount)` | Burns mJ tokens (spending/retirement) | Public |
+| `mintAC(address to, uint256 amount)` | Mints carbon tokens (NFT) | Owner only |
+| `burnMJ(uint256 amount)` | Burns mJ tokens (spending/retirement/grid purchase) | Public |
 | `burnAC(uint256 amount)` | Burns aC tokens (retirement only) | Public |
+| `retireAC(uint256 tokenId)` | Permanently retires carbon NFT, emits certificate | Public |
 | `setCarbonPrice(int256 _price)` | Updates carbon price feed | Owner only |
 | `setElectricityTariff(uint256 _tariff)` | Sets current electricity tariff (ZAR/kWh) | Owner only |
 | `purchaseElectricity(address user, uint256 kwhAmount)` | Burns mJ tokens and records electricity purchase | Oracle only |
 | `getElectricityTariff()` | Returns current tariff rate | Public |
 
-#### 6.1.3 Events
+#### 6.1.4 Events
 
 ```solidity
 event MJMinted(address indexed to, uint256 amount);
-event ACMinted(address indexed to, uint256 amount);
+event ACMinted(address indexed to, uint256 tokenId, uint256 kgCO2);
 event CarbonPriceUpdated(int256 price);
 event EnergyRecorded(address indexed user, uint256 kWh, uint256 timestamp);
-event TokenRetired(address indexed user, uint256 amount, string certificateId);
+event TokenRetired(address indexed user, uint256 tokenId, uint256 kgCO2, string certificateId);
 event TokenPledged(address indexed from, address indexed to, uint256 amount);
 event ElectricityPurchased(address indexed user, uint256 kwhAmount, uint256 tokensBurned, string meterNumber);
 event ElectricityTariffUpdated(uint256 newTariff);
+event BridgeToCOAS(address indexed user, uint256[] tokenIds, bytes32 merkleRoot);
 ```
 
 ### 6.2 ESP Oracle (Backend)
@@ -293,26 +401,62 @@ event ElectricityTariffUpdated(uint256 newTariff);
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| `/api/v1/device/register` | POST | Register new ESP32 device with public key |
 | `/api/v1/energy/submit` | POST | Accept signed energy data from devices |
 | `/api/v1/energy/{device_id}/daily` | GET | Get daily production for device |
+| `/api/v1/energy/{device_id}/history` | GET | Get historical production data |
 | `/api/v1/oracle/batch-submit` | POST | Internal: submit batch to smart contract |
 | `/api/v1/user/{address}/balance` | GET | Get user's token balances |
 | `/api/v1/user/{address}/history` | GET | Get user's energy history |
-| `/api/v1/carbon/price` | GET | Get current carbon price |
+| `/api/v1/carbon/price` | GET | Get current carbon price (multi-source) |
 | `/api/v1/electricity/purchase` | POST | Purchase grid electricity using tokens |
 | `/api/v1/electricity/tariff` | GET | Get current electricity tariff rate |
+| `/api/v1/bridge/to-coas` | POST | Bridge aC tokens to COAS registry |
 
 #### 6.2.2 Oracle Workflow
 
 ```
 1. RECEIVE   ← Signed data packet from ESP32 device
-2. VERIFY    ← Check signature matches registered device
+2. VERIFY    ← Check signature matches registered device public key
 3. DEDUP     ← Reject duplicate timestamps (replay protection)
 4. VALIDATE  ← Check timestamp within ±24 hours
-5. STORE     ← Persist to PostgreSQL with verified=true
-6. BATCH     ← Aggregate multiple submissions (10-50 per tx)
-7. SUBMIT    ← Call smart contract recordEnergyUsage()
-8. CONFIRM   ← Log transaction hash for audit trail
+5. ORACLE    ← Cross-reference with Chainlink oracle (solar irradiance data)
+6. STORE     ← Persist to PostgreSQL with verified=true
+7. BATCH     ← Aggregate multiple submissions (10-50 per tx)
+8. SUBMIT    ← Call smart contract recordEnergyUsage()
+9. MINT      ← Smart contract mints mJ (immediate) and queues aC (pending verification)
+10. CONFIRM  ← Log transaction hash for audit trail
+```
+
+#### 6.2.3 Device Registration Flow (I-REC/zaREC Aggregation)
+
+The system supports two registration paths:
+
+**Path A: Direct Device Registration (Umbane Native)**
+- Device registers directly with Umbane (R500 one-time onboarding)
+- Low-cost IoT devices (R1,200-R2,100) with tamper-proof ECDSA signing
+- Suitable for household solar prosumers excluded by traditional registries
+
+**Path B: Aggregated I-REC/zaREC Registration**
+- Umbane acts as third-party registrant for multiple devices
+- Reduces per-device cost through aggregation (I-REC explicitly allows this)
+- Can batch-register 100-1,000 devices via CSV upload
+- Free registrant enrollment; device fees still apply
+
+**Registration Data Required:**
+```json
+{
+  "device_id": "0x8a3f92b1",
+  "public_key": "0x04a1b2c3...",
+  "location": {
+    "lat": -34.1050,
+    "lon": 18.4750,
+    "address": "Cape Town, South Africa"
+  },
+  "installation_capacity_kw": 5.2,
+  "grid_connection": "Nedlink prepaid meter",
+  "registration_path": "direct" | "irec_aggregated" | "zarec_aggregated"
+}
 ```
 
 ### 6.3 Device Firmware (ESP32)
@@ -509,14 +653,23 @@ event ElectricityTariffUpdated(uint256 newTariff);
 | Term | Definition |
 |------|------------|
 | **CT Clamp** | Current Transformer clamp - non-invasive sensor for measuring electrical current |
+| **PZEM-004T** | Power measurement module measuring voltage, current, power, frequency, power factor |
 | **ESP Oracle** | Backend service that verifies device data and submits to blockchain |
-| **mJ Token** | Umbane Energy token - represents energy produced (millijoules) |
-| **aC Token** | Umbane Carbon token - represents carbon offset (kg CO2) |
+| **mJ Token** | Umbane Energy token (ERC-20) - represents energy produced (1 mJ = 1 Wh) |
+| **aC Token** | Umbane Carbon token (ERC-721 NFT) - represents carbon offset |
 | **Prosumer** | Consumer who also produces energy (solar panel owner) |
 | **DEX** | Decentralized Exchange - automated token trading protocol |
 | **Retirement** | Permanent removal of carbon tokens from circulation (claiming offset) |
 | **Pledging** | Donating tokens to community pool for redistribution |
 | **Grid Purchase** | Using mJ tokens to purchase electricity credit from municipal grid |
+| **zaREC** | South African voluntary REC registry (R25,000/device registration) |
+| **I-REC** | International Renewable Energy Certificate (GCC administered, UK-based) |
+| **RECSA** | Renewable Energy Certificate South Africa - industry body |
+| **COAS** | Carbon Offset Administration System - tax-eligible offsets |
+| **GCC** | Green Certificate Company - I-REC central issuer for South Africa |
+| **Xpansiv** | Infrastructure provider powering JSE Ventures Carbon Market |
+| **AMM** | Automated Market Maker - algorithmic pricing via liquidity pools |
+| **Emission Factor** | kg CO2 emitted per kWh of grid electricity (SA: 0.9 kg/kWh) |
 
 ---
 
@@ -551,7 +704,7 @@ def calculate_carbon_credits(energy_kwh: float, emission_factor: float = 0.5) ->
 
 | Region | Grid Emission Factor (kg CO2/kWh) | Source |
 |--------|----------------------------------|--------|
-| South Africa | 0.50 | Eskom 2024 |
+| **South Africa** | **0.90** | Eskom 2026 (updated) |
 | EU | 0.28 | EEA 2024 |
 | USA (average) | 0.42 | EPA 2024 |
 | China | 0.58 | MIIT 2024 |
@@ -560,5 +713,5 @@ def calculate_carbon_credits(energy_kwh: float, emission_factor: float = 0.5) ->
 ---
 
 **Document Author:** Umbane Development Team  
-**Last Updated:** March 19, 2026  
+**Last Updated:** March 27, 2026  
 **Next Review:** After Phase 1 MVP deployment
