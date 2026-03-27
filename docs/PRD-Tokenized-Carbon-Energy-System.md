@@ -114,10 +114,11 @@ UMB tokens serve multiple purposes:
 
 | Token | Symbol | Description | Standard | Implementation |
 |-------|--------|-------------|----------|----------------|
+| **Umbane Governance** | **UMB** | Governance token wrapping mJ + aC + REC cert | ERC-20 + Votes | Pending |
 | **Umbane Energy** | **mJ** | Represents energy produced (millijoules) | ERC-20 | ✓ Implemented as ERC-20 |
-| **Umbane Carbon** | **aC** | Represents carbon offset (kg CO2) | ERC-20 | ✓ Implemented as ERC-20 (NOT NFT) |
+| **Umbane Carbon** | **aC** | Represents carbon offset (kg CO2) | ERC-20 | ✓ Implemented as ERC-20 |
 
-**Note:** The PRD originally specified aC as ERC-721 NFT, but the actual implementation uses ERC-20 for both tokens (Option C). This was simpler for DeFi integration.
+**Note:** UMB wraps mJ (energy) + aC (carbon) with zaREC/d-REC certificate metadata. Governance token (not yet deployed).
 
 ### 3.2 Token Mechanics
 
